@@ -1,0 +1,64 @@
+version: 2.1
+
+workflows:
+  build_and_release:
+    jobs:
+      - build
+      - release:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - /^master$/
+
+jobs:
+  build:
+    docker:
+      - image: silex/emacs:27-ci
+    steps:
+      - run:
+          name: Install orgmk
+          command: |
+            cd
+            git clone https://github.com/yqrashawn/orgmk.git
+            cd orgmk
+            make
+            make install
+            cd
+      - run:
+          name: prepare dir
+          command: |
+            cd
+            mkdir -p project
+            cd project
+      - checkout
+      - restore_cache:
+          key: cache-v1
+      - run:
+          name: build org file
+          command: |
+            yes yes | org2html -y ./Portal-Architecture.org || true
+      - save_cache:
+          paths:
+            - /root/.emacs.d
+          key: cache-v1
+      - persist_to_workspace:
+          root: .
+          paths:
+            - Portal-Architecture.html
+  release:
+    docker:
+      - image: silex/emacs:27-ci
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: publish
+          command: |
+            git config --global user.email "namy.19@gmail.com"
+            git config --global user.name "yqrashawn"
+            git add .
+            git commit -m 'feat: release [ci skip]'
+            git push --force origin HEAD:docs
