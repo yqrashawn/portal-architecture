@@ -1,0 +1,498 @@
+#+TITLE: Portal Documentation
+#+OPTIONS: creator:nil author:nil toc:t
+#+SETUPFILE: https://raw.githubusercontent.com/yqrashawn/org-html-themes/master/org/theme-bigblow.setup
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="./override.css"/>
+
+
+* General
+- a browser extension
+- stores user's private key and respond to signature requests
+- provide a conflux network provider to [[https://github.com/Conflux-Chain/js-conflux-sdk#readme][~js-conflux-sdk~]]  and inject the sdk
+  into browser tabs as a JavaScript interface to interact with:
+  - wallet
+    - sign message
+    - sign transaction
+    - get current user selected account
+    - get current user selected network
+    - get other data that not from fullnode
+  - conflux network
+    - send HTTP request to a rpc end point
+- provide ui for user to handle signature requests
+- provide ui for user to send assets
+- provide ui for user to check transaction info
+
+* Technical
+** Web Extension
+- Standard JavaScript api for web extension.
+- Browser compatibility: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Browser_support_for_JavaScript_APIs
+- Polyfill by Mozilla: https://github.com/mozilla/webextension-polyfill
+- Polyfill by MetaMask: https://github.com/MetaMask/extensionizer
+*** manifest.json
+- WebExtension: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json
+- Chrome: https://developer.chrome.com/docs/extensions/mv2/manifest/
+- portal's manifest.json: https://github.com/Conflux-Chain/conflux-portal/blob/develop/app/manifest.json
+- place to declare important extension configuration/information:
+  - basic extension info, name, version, website...
+  - declare extension permissions, unlimitedStorage, tabs...
+  - declare runtimes initialization configuration, background, browser_action, content_scripts...
+*** runtime
+- Extension runtime api ~window.chrome.extension.runtime~
+- Doc: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime
+- Has ~onConnect~ and ~connect~ api to connect to each other can create ~runtime.Port~.
+- [[https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/Port][~runtime.Port~]] has ~onMessage~ and ~postMessage~ api to send message between
+each other. MetaMask use this through [[https://github.com/MetaMask/extension-port-stream][extension-port-stream]].
+
+- 3 kind of runtimes:
+  - background
+    - unique
+    - long running process
+    - starts and stops with browser
+  - popup
+    - runtime of the popup ui
+    - process only exists when the popup is opened
+    - can have multiple popups at the same time
+    - can be opened with URL like ~chrome-extension://<extension-id>/<file>~
+  - content-script
+    - runtime injected into each tab
+    - don't share storage with other type of runtimes
+    - portal injects this into all open tabs
+
+- code can be found with
+  - ~runtime.*connect~
+  - ~extension-port-stream~
+  - ~extensionizer~
+#+NAME: web extension runtime
+#+BEGIN_SRC plantuml :results file graphics :exports results :file web-extension-runtime.png
+  @startuml
+  skinparam componentStyle rectangle
+
+  node "tabs" as tabs {
+    [content-script-1 runtime] as c1
+    [content-script-2 runtime] as c2
+  }
+
+  node "popups" as pp {
+    [popup-1 runtime] as p1
+    [popup-2 runtime] as p2
+  }
+
+  node "background" as bg {
+    (runtime.onConnect) as o
+    p1 -> o : connect
+    p2 -> o :connect
+    c1 -> o :connect
+    c2 -> o :connect
+  }
+  @enduml
+#+END_SRC
+
+#+RESULTS: web extension runtime
+[[file:web-extension-runtime.png]]
+
+*** storage
+- Extension storage api ~window.chrome.extension.storage~
+- ~storage.local~ async version of ~localStorage~, up to 5MB without
+  ~unlimitedStorage~ permission
+- ~storage.sync~ automatically sync between multiple browser, up to 100KB
+- storage is shared between popup and background runtimes, not shared with
+  content-script runtime
+- portal use this to persist ext state to disk, search ~createStreamSink~ in ~background.js~
+** Architecture
+#+NAME: portal architecture
+#+BEGIN_SRC plantuml :result file graphics :exports results :file portal-architecture.png
+  @startuml
+  skinparam componentStyle rectangle
+
+  'left to right direction
+  top to bottom direction
+
+  actor "portal user" as user
+
+  card "portal ui" as pui {
+    card puidetail [
+    description
+    ----
+    1. the main portal ui
+    2. user use it to send transactions
+    3. user use it to autherize dapps
+    4. popup.html
+    ]
+
+    card "ui components" as ui {
+      card uics [
+      accounts
+      ----
+      network
+      ----
+      transactions
+      ----
+      .........
+      ]
+    }
+
+    card actions {
+      card actionsdetail [
+      description
+      ----
+      1. general actions in frontend code
+      2. call background.methods
+      3. other redux dispatch
+      ]
+
+      [background connection] as bgc
+
+      /'
+      ' bgc ---> pb :request
+      ' bgc <--- pb :data
+      '/
+
+    }
+
+    card reducers {
+      card reducersdetail [
+      description
+      ----
+      1. multiple reducers combined into one
+      ]
+
+      card reducers [
+      app reducer
+      ----
+      send reducer
+      ----
+      sponsor info reducer
+      ]
+    }
+
+    ui --> actions :mvc:trigger
+    actions --> reducers :mvc:dispatch
+    ui <--- reducers :mvc:determine
+  }
+
+  card "dapp ui" as dui {
+    card duidetail [
+    description
+    ----
+    1. dapp web page
+    2. write by dapp developer
+    3. dapp interact with blockchain through portal
+    ]
+
+    actor "dapp developer" as dappdev
+    [ui code] as uicode
+    card "portal content-script" as pcs {
+      card pcs [
+      description
+      ----
+      1. loaded in all tabs
+      2. inject portal inpage.js
+      3. setup stream to pass through rpc to background
+      ]
+
+      [stream] as dappstream
+
+      card "portal inpage" {
+        card pinp [
+        description
+        ----
+        1. initialize a js-conflux-sdk provider with stream in content-script
+        2. initialize js-conflux-sdk with the provider
+        ]
+
+        [js-conflux-sdk provider] as provider
+        [js-conflux-sdk] as sdk
+      }
+    }
+
+    dappstream <-- provider :request
+    provider <-- sdk :request
+    dappdev -> uicode :write
+    uicode -> sdk :call
+
+    dappstream --> provider :data
+    provider --> sdk :data
+    uicode <- sdk :data
+
+    /'
+    ' [stream] ----> pb :request
+    ' [stream] <---- pb :data
+    '/
+  }
+
+  card "portal background" as pb {
+    card pbdetail [
+    description
+    ----
+    1. long-running process in the background
+    2. handle request from popup and content-script
+    3. track things like nonce/epochNumber
+    4. listen to streams from other processes and create handlers for them
+    ]
+
+    card "trusted connection streams" as ts {
+      [trusted connection stream 1] as ts1
+      [trusted connection stream 2] as ts2
+    }
+
+    card "untrusted connection streams" as uts {
+      [untrusted connection stream 1] as uts1
+      [untrusted connection stream 2] as uts2
+    }
+
+    card "provider engine" as pe {
+      card pedetail [
+      description
+      ----
+      1. a engine with middlewares to process rpc request
+      ]
+
+      card "wallet middleware" as walletm {
+        card walletmdetail [
+        description
+        ----
+        1. middleware to handle wallet rpcs
+        2. cfx_accounts, cfx_sign, cfx_signTypedData...
+        ]
+      }
+
+      card "cfx middleware" as cfxm {
+        card cfxmdetail [
+        description
+        ----
+        1. middleware to change the request
+        2. eth_.* to cfx_.*
+        3. getBlockByNumber to getBlockByEpochNumber
+        4. ....
+        ]
+      }
+
+      card "fetch middleware" as fetchm {
+        card fetchmdetail [
+        description
+        ----
+        1. middleware that sends the real http request to fullnode
+        ]
+      }
+    }
+
+    ts1 <--> pe
+    ts2 <--> pe
+    uts1 <--> pe
+    uts2 <--> pe
+
+    bgc ----> ts :request
+    bgc <---- ts :data
+
+    dappstream -----> uts :request
+    dappstream <----- uts :data
+  }
+
+  [fullnode] as fullnode
+  user --> pui :use
+  user --> dui :use
+  fetchm --> fullnode :request
+  fetchm <-- fullnode :response
+
+  @enduml
+#+END_SRC
+
+#+RESULTS: portal architecture
+[[file:portal-architecture.png]]
+
+** Keyring controller
+- Github: https://github.com/yqrashawn/KeyringController
+- Code to manage mnemonic and private keys
+- lock: remove in memory keyring instance and password
+- unlock: load encrypted keyring from persist storage then decrypt, generate keyring instance
+- import mnemonic/pk: create keyring instance, encrypt and persist mnemonic/pk
+- export mnemonic/pk: use password to decrypt the encrypted keyring and send to ui
+- signing methods: just interface, the real signing logic is in other package
+- account related methods: create account from hk keyring, remove account...
+*** simple keyring
+- Github: https://github.com/yqrashawn/cfx-simple-keyring
+- private key related code
+- generate private key
+- signing methods
+- account related methods
+*** hd keyring
+- Github: https://github.com/yqrashawn/cfx-hd-keyring
+- mnemonic related code
+- generate mnemonic
+- signing methods
+- inherit from simple keyring
+- account related methods
+** Transaction controller
+#+NAME: transaction state
+#+BEGIN_SRC plantuml :results file graphics :exports results :file transaction-state.png
+  @startuml
+  |#gray|New tx|
+  start
+
+  :Unapproved tx;
+  if (Approve?) then (Approve)
+    |#c1fcc1|Approve tx|
+    :approved tx;
+    split
+    if (Sign?) then (Success)
+      :signed tx;
+      if (Submit?) then (Success)
+      else (Failed)
+      endif
+      split
+      |#c1e9fc|Check pending tx|
+      repeat :submitted tx;
+      repeat while (Check pending tx) is (Pending)
+      ->Executed;
+      repeat :Executed tx;
+      repeat while (Check pending tx) is (Pending)
+      ->Confirmed;
+      :Confirmed tx;
+      end
+      split again
+      |#aae4ff|Resubmit pending tx|
+      repeat :submitted tx;
+      repeat while (Resubmit pending tx)
+      stop
+      end split
+    else (Failed)
+      |#c1fcc1|Approve tx|
+      :failed signed tx;
+      :Failed;
+      end
+    endif
+    split again
+    |#c1e9fc|Check pending tx|
+    :bugged tx;
+    stop
+    end split
+  else (Reject)
+    |#red|Reject tx|
+    :Discarded;
+    end
+  endif
+
+  @enduml
+#+END_SRC
+
+#+RESULTS: transaction state
+[[file:transaction-state.png]]
+
+** Permission controller
+- [[* permission middleware]]
+** Network controller
+*** Network provider engine
+run the rpc request through sequence of middlewares
+**** origin middleware
+add a ~.origin~ to the req, eg. ~req.origin="monndex.io"~
+**** logger middleware
+**** onboarding middleware
+**** filter middleware
+~eth_newFilter~...
+**** subscribe middleware
+~eth_subscribe~, ~eth_unsubscribe~
+**** permission middleware
+- handle permissions
+- using package rpc-cap https://github.com/MetaMask/rpc-cap
+- 1 domain -> multiple account -> multiple permissions
+- block ~cfx_accounts~, ~cfx_requestAccounts~ if the domain don't have
+  permission and popup the auth ui
+**** wallet watch asset  middleware
+[[https://github.com/ethereum/EIPs/blob/master/EIPS/eip-747.md][- eip-747]]
+- An RPC method for allowing users to easily track new assets with a suggestion from sites they are visiting.
+**** metamask middleware
+combination on multiple middlewares
+***** simple method
+- ~web3_clientVersion~
+- ~eth_syncing~
+*****  wallet middleware
+- handle rpc methods that don't rely on fullnode
+  - ~cfx_accounts~
+  - ~eth_coinbase~
+  - ~cfx_sendTransaction~
+  - ~cfx_sign~
+  - ~cfx_signTypedData~
+  - ~cfx_signTypedData_v0~
+  - ~cfx_signTypedData_v3~
+  - ~cfx_signTypedData_v4~
+  - ~personal_sign~
+  - ~eth_getEncryptionPublicKey~
+  - ~eth_decrypt~
+  - ~personal_ecRecover~
+***** pending nonce middleware
+- use own get nonce logic for ~cfx_nextNonce~
+***** pending tx middleware
+- use cached tx hash for ~cfx_getTransactionByHash~
+**** network middleware
+***** epoch ref rewrite middleware
+rewrite epoch ref to epoch number
+***** epoch cache middleware
+code: https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/block-cache.js#L8
+- cache info for each request depends on [[https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/cache-utils.js#L80][req.method]], eg.
+  - never cache ~cfx_sendTransaction~
+  - cache ~cfx_gasPrice~, ~cfx_getBalance~, ~cfx_getNextNonce~ by epoch
+  - cache ~cfx_getCode~, ~cfx_getBlockByHash~ permanently
+***** in flight cache middleware
+code: https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/inflight-cache.js#L11
+cache request result by payload
+***** epoch tracker inspector middleware
+code: https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/block-tracker-inspector.js#L8
+check for new epoch number
+***** cfx rewrite request middleware
+rewrite eth request to cfx request, eg.
+- ~eth_.*~ to ~cfx_.*~
+- ~getBlockByNumber~ to ~getBlockByEpochNumber~
+- ....
+
+** Preferences controller
+** AddressBook controller
+
+* Features
+** Manage account
+*** user can import/generate hd wallet through mnemonic
+*** user can easily create accounts in hd wallet
+*** user can import private keys
+*** user can export private keys of any account
+*** user can export mnemonic of hd wallet
+** Manage network
+*** user can switch between multiple networks
+*** user can add custom network (rpc endpoint)
+*** user can easily connect to local rpc endpoint (default localhost rpc endpoint)
+** Manage transaction
+*** display transaction details
+*** display history transactions
+*** display on-going transaction status
+*** speedup/cancel on-going transaction
+*** transaction activity log
+** Manage dapp permissions
+*** dapp permission request ui
+*** ui to deauthorize and re-authorize current dapp
+** Provide api for dapp
+*** authorized dapp can get authorized address
+*** authorized dapp can get network info and listen on network change
+*** authorized dapp can request signature from user through portal
+*** authorized dapp can send request to fullnode through portal
+*** provide special ui of common signature requests for users
+**** ~cfx_sign~
+**** ~personal_sign~
+**** ~cfx_signTypedData_v4~
+**** ~cfx_sendTransaction~
+**** token ~transfer~
+**** token ~approve~
+** Address Book
+*** can add contacts address with alias and use alias as address later
+* Refactor
+** support multiple vaults
+** too much redux code
+*** https://github.com/facebookexperimental/Recoil
+*** https://github.com/pmndrs/jotai
+*** https://github.com/pmndrs/zustand
+- store is outside of react state tree
+- support use outside of react components
+- support serialize/persist the store
+- support redux devtool
+** can auth multiple accounts at once
+** should decouple with frontend
+*** user can write their own wallet frontend
+*** the wallet popup frontend is just pre-authed with
+1. able to import or create vault without auth
+2. is the default frontend

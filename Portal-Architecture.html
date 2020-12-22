@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Portal Documentation</title>
+<meta name="generator" content="Org mode" />
+<link rel="stylesheet" type="text/css" href="https://yqrashawn.com/org-html-themes/src/bigblow_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://yqrashawn.com/org-html-themes/src/bigblow_theme/css/bigblow.css"/>
+<link rel="stylesheet" type="text/css" href="https://yqrashawn.com/org-html-themes/src/bigblow_theme/css/hideshow.css"/>
+<script type="text/javascript" src="https://yqrashawn.com/org-html-themes/src/bigblow_theme/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="https://yqrashawn.com/org-html-themes/src/bigblow_theme/js/jquery-ui-1.10.2.min.js"></script>
+<script type="text/javascript" src="https://yqrashawn.com/org-html-themes/src/bigblow_theme/js/jquery.localscroll-min.js"></script>
+<script type="text/javascript" src="https://yqrashawn.com/org-html-themes/src/bigblow_theme/js/jquery.scrollTo-1.4.3.1-min.js"></script>
+<script type="text/javascript" src="https://yqrashawn.com/org-html-themes/src/bigblow_theme/js/jquery.zclip.min.js"></script>
+<script type="text/javascript" src="https://yqrashawn.com/org-html-themes/src/bigblow_theme/js/bigblow.js"></script>
+<script type="text/javascript" src="https://yqrashawn.com/org-html-themes/src/bigblow_theme/js/hideshow.js"></script>
+<script type="text/javascript" src="https://yqrashawn.com/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<link rel="stylesheet" type="text/css" href="./override.css"/>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Portal Documentation</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb0871a8">1. General</a></li>
+<li><a href="#org513c771">2. Technical</a>
+<ul>
+<li><a href="#orga24f960">2.1. Web Extension</a>
+<ul>
+<li><a href="#orgff68c43">2.1.1. manifest.json</a></li>
+<li><a href="#org673d35e">2.1.2. runtime</a></li>
+<li><a href="#org4d159b3">2.1.3. storage</a></li>
+</ul>
+</li>
+<li><a href="#org34966bc">2.2. Architecture</a></li>
+<li><a href="#org63e36ed">2.3. Keyring controller</a>
+<ul>
+<li><a href="#orge464c83">2.3.1. simple keyring</a></li>
+<li><a href="#org38ac96f">2.3.2. hd keyring</a></li>
+</ul>
+</li>
+<li><a href="#orgac3e97f">2.4. Transaction controller</a></li>
+<li><a href="#org44f417d">2.5. Permission controller</a></li>
+<li><a href="#org80f770f">2.6. Network controller</a>
+<ul>
+<li><a href="#orgd91bcd9">2.6.1. Network provider engine</a></li>
+</ul>
+</li>
+<li><a href="#orgb0616ba">2.7. Preferences controller</a></li>
+<li><a href="#org3b2fcaf">2.8. AddressBook controller</a></li>
+</ul>
+</li>
+<li><a href="#org9a45eed">3. Features</a>
+<ul>
+<li><a href="#org784de46">3.1. Manage account</a>
+<ul>
+<li><a href="#org4f0167e">3.1.1. user can import/generate hd wallet through mnemonic</a></li>
+<li><a href="#org690f065">3.1.2. user can easily create accounts in hd wallet</a></li>
+<li><a href="#org698098b">3.1.3. user can import private keys</a></li>
+<li><a href="#orgae4c005">3.1.4. user can export private keys of any account</a></li>
+<li><a href="#orga8ba04f">3.1.5. user can export mnemonic of hd wallet</a></li>
+</ul>
+</li>
+<li><a href="#orge97ff6e">3.2. Manage network</a>
+<ul>
+<li><a href="#org592073b">3.2.1. user can switch between multiple networks</a></li>
+<li><a href="#org73a856f">3.2.2. user can add custom network (rpc endpoint)</a></li>
+<li><a href="#org547421e">3.2.3. user can easily connect to local rpc endpoint (default localhost rpc endpoint)</a></li>
+</ul>
+</li>
+<li><a href="#org23d0e49">3.3. Manage transaction</a>
+<ul>
+<li><a href="#orgcee45f2">3.3.1. display transaction details</a></li>
+<li><a href="#org772408c">3.3.2. display history transactions</a></li>
+<li><a href="#orgdf4d469">3.3.3. display on-going transaction status</a></li>
+<li><a href="#orgaf11454">3.3.4. speedup/cancel on-going transaction</a></li>
+<li><a href="#org7580983">3.3.5. transaction activity log</a></li>
+</ul>
+</li>
+<li><a href="#orgeb52ecf">3.4. Manage dapp permissions</a>
+<ul>
+<li><a href="#org1ecaa31">3.4.1. dapp permission request ui</a></li>
+<li><a href="#orgd8cea8a">3.4.2. ui to deauthorize and re-authorize current dapp</a></li>
+</ul>
+</li>
+<li><a href="#orgce51754">3.5. Provide api for dapp</a>
+<ul>
+<li><a href="#org8f52b00">3.5.1. authorized dapp can get authorized address</a></li>
+<li><a href="#org566279e">3.5.2. authorized dapp can get network info and listen on network change</a></li>
+<li><a href="#org01f4f2b">3.5.3. authorized dapp can request signature from user through portal</a></li>
+<li><a href="#org13c765e">3.5.4. authorized dapp can send request to fullnode through portal</a></li>
+<li><a href="#org4744f87">3.5.5. provide special ui of common signature requests for users</a></li>
+</ul>
+</li>
+<li><a href="#orgff5f3db">3.6. Address Book</a>
+<ul>
+<li><a href="#org7850ed8">3.6.1. can add contacts address with alias and use alias as address later</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org3bd0d63">4. Refactor</a>
+<ul>
+<li><a href="#org04f85b0">4.1. support multiple vaults</a></li>
+<li><a href="#orgfe0c0a4">4.2. too much redux code</a>
+<ul>
+<li><a href="#org817da71">4.2.1. https://github.com/facebookexperimental/Recoil</a></li>
+<li><a href="#orgb9fd7f9">4.2.2. https://github.com/pmndrs/jotai</a></li>
+<li><a href="#orge00ddd4">4.2.3. https://github.com/pmndrs/zustand</a></li>
+</ul>
+</li>
+<li><a href="#orgb256113">4.3. can auth multiple accounts at once</a></li>
+<li><a href="#orgdd867d2">4.4. should decouple with frontend</a>
+<ul>
+<li><a href="#orgea6e2b2">4.4.1. user can write their own wallet frontend</a></li>
+<li><a href="#org06791cb">4.4.2. the wallet popup frontend is just pre-authed with</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgb0871a8" class="outline-2">
+<h2 id="orgb0871a8"><span class="section-number-2">1</span> General</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>a browser extension</li>
+<li>stores user&rsquo;s private key and respond to signature requests</li>
+<li>provide a conflux network provider to <a href="https://github.com/Conflux-Chain/js-conflux-sdk#readme"><code>js-conflux-sdk</code></a>  and inject the sdk
+into browser tabs as a JavaScript interface to interact with:
+<ul class="org-ul">
+<li>wallet
+<ul class="org-ul">
+<li>sign message</li>
+<li>sign transaction</li>
+<li>get current user selected account</li>
+<li>get current user selected network</li>
+<li>get other data that not from fullnode</li>
+</ul></li>
+<li>conflux network
+<ul class="org-ul">
+<li>send HTTP request to a rpc end point</li>
+</ul></li>
+</ul></li>
+<li>provide ui for user to handle signature requests</li>
+<li>provide ui for user to send assets</li>
+<li>provide ui for user to check transaction info</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org513c771" class="outline-2">
+<h2 id="org513c771"><span class="section-number-2">2</span> Technical</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-orga24f960" class="outline-3">
+<h3 id="orga24f960"><span class="section-number-3">2.1</span> Web Extension</h3>
+<div class="outline-text-3" id="text-2-1">
+<ul class="org-ul">
+<li>Standard JavaScript api for web extension.</li>
+<li>Browser compatibility: <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Browser_support_for_JavaScript_APIs">https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Browser_support_for_JavaScript_APIs</a></li>
+<li>Polyfill by Mozilla: <a href="https://github.com/mozilla/webextension-polyfill">https://github.com/mozilla/webextension-polyfill</a></li>
+<li>Polyfill by MetaMask: <a href="https://github.com/MetaMask/extensionizer">https://github.com/MetaMask/extensionizer</a></li>
+</ul>
+</div>
+<div id="outline-container-orgff68c43" class="outline-4">
+<h4 id="orgff68c43"><span class="section-number-4">2.1.1</span> manifest.json</h4>
+<div class="outline-text-4" id="text-2-1-1">
+<ul class="org-ul">
+<li>WebExtension: <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json">https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json</a></li>
+<li>Chrome: <a href="https://developer.chrome.com/docs/extensions/mv2/manifest/">https://developer.chrome.com/docs/extensions/mv2/manifest/</a></li>
+<li>portal&rsquo;s manifest.json: <a href="https://github.com/Conflux-Chain/conflux-portal/blob/develop/app/manifest.json">https://github.com/Conflux-Chain/conflux-portal/blob/develop/app/manifest.json</a></li>
+<li>place to declare important extension configuration/information:
+<ul class="org-ul">
+<li>basic extension info, name, version, website&#x2026;</li>
+<li>declare extension permissions, unlimitedStorage, tabs&#x2026;</li>
+<li>declare runtimes initialization configuration, background, browser_action, content_scripts&#x2026;</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org673d35e" class="outline-4">
+<h4 id="org673d35e"><span class="section-number-4">2.1.2</span> runtime</h4>
+<div class="outline-text-4" id="text-2-1-2">
+<ul class="org-ul">
+<li>Extension runtime api <code>window.chrome.extension.runtime</code></li>
+<li>Doc: <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime">https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime</a></li>
+<li>Has <code>onConnect</code> and <code>connect</code> api to connect to each other can create <code>runtime.Port</code>.</li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/Port"><code>runtime.Port</code></a> has <code>onMessage</code> and <code>postMessage</code> api to send message between</li>
+</ul>
+<p>
+each other. MetaMask use this through <a href="https://github.com/MetaMask/extension-port-stream">extension-port-stream</a>.
+</p>
+
+<ul class="org-ul">
+<li>3 kind of runtimes:
+<ul class="org-ul">
+<li>background
+<ul class="org-ul">
+<li>unique</li>
+<li>long running process</li>
+<li>starts and stops with browser</li>
+</ul></li>
+<li>popup
+<ul class="org-ul">
+<li>runtime of the popup ui</li>
+<li>process only exists when the popup is opened</li>
+<li>can have multiple popups at the same time</li>
+<li>can be opened with URL like <code>chrome-extension://&lt;extension-id&gt;/&lt;file&gt;</code></li>
+</ul></li>
+<li>content-script
+<ul class="org-ul">
+<li>runtime injected into each tab</li>
+<li>don&rsquo;t share storage with other type of runtimes</li>
+<li>portal injects this into all open tabs</li>
+</ul></li>
+</ul></li>
+
+<li>code can be found with
+<ul class="org-ul">
+<li><code>runtime.*connect</code></li>
+<li><code>extension-port-stream</code></li>
+<li><code>extensionizer</code></li>
+</ul></li>
+</ul>
+
+<div id="org305ff17" class="figure">
+<p><img src="web-extension-runtime.png" alt="web-extension-runtime.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4d159b3" class="outline-4">
+<h4 id="org4d159b3"><span class="section-number-4">2.1.3</span> storage</h4>
+<div class="outline-text-4" id="text-2-1-3">
+<ul class="org-ul">
+<li>Extension storage api <code>window.chrome.extension.storage</code></li>
+<li><code>storage.local</code> async version of <code>localStorage</code>, up to 5MB without
+<code>unlimitedStorage</code> permission</li>
+<li><code>storage.sync</code> automatically sync between multiple browser, up to 100KB</li>
+<li>storage is shared between popup and background runtimes, not shared with
+content-script runtime</li>
+<li>portal use this to persist ext state to disk, search <code>createStreamSink</code> in <code>background.js</code></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org34966bc" class="outline-3">
+<h3 id="org34966bc"><span class="section-number-3">2.2</span> Architecture</h3>
+<div class="outline-text-3" id="text-2-2">
+
+<div id="orgdd6dfaf" class="figure">
+<p><img src="portal-architecture.png" alt="portal-architecture.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org63e36ed" class="outline-3">
+<h3 id="org63e36ed"><span class="section-number-3">2.3</span> Keyring controller</h3>
+<div class="outline-text-3" id="text-2-3">
+<ul class="org-ul">
+<li>Github: <a href="https://github.com/yqrashawn/KeyringController">https://github.com/yqrashawn/KeyringController</a></li>
+<li>Code to manage mnemonic and private keys</li>
+<li>lock: remove in memory keyring instance and password</li>
+<li>unlock: load encrypted keyring from persist storage then decrypt, generate keyring instance</li>
+<li>import mnemonic/pk: create keyring instance, encrypt and persist mnemonic/pk</li>
+<li>export mnemonic/pk: use password to decrypt the encrypted keyring and send to ui</li>
+<li>signing methods: just interface, the real signing logic is in other package</li>
+<li>account related methods: create account from hk keyring, remove account&#x2026;</li>
+</ul>
+</div>
+<div id="outline-container-orge464c83" class="outline-4">
+<h4 id="orge464c83"><span class="section-number-4">2.3.1</span> simple keyring</h4>
+<div class="outline-text-4" id="text-2-3-1">
+<ul class="org-ul">
+<li>Github: <a href="https://github.com/yqrashawn/cfx-simple-keyring">https://github.com/yqrashawn/cfx-simple-keyring</a></li>
+<li>private key related code</li>
+<li>generate private key</li>
+<li>signing methods</li>
+<li>account related methods</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org38ac96f" class="outline-4">
+<h4 id="org38ac96f"><span class="section-number-4">2.3.2</span> hd keyring</h4>
+<div class="outline-text-4" id="text-2-3-2">
+<ul class="org-ul">
+<li>Github: <a href="https://github.com/yqrashawn/cfx-hd-keyring">https://github.com/yqrashawn/cfx-hd-keyring</a></li>
+<li>mnemonic related code</li>
+<li>generate mnemonic</li>
+<li>signing methods</li>
+<li>inherit from simple keyring</li>
+<li>account related methods</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgac3e97f" class="outline-3">
+<h3 id="orgac3e97f"><span class="section-number-3">2.4</span> Transaction controller</h3>
+<div class="outline-text-3" id="text-2-4">
+
+<div id="orgdd9f3b1" class="figure">
+<p><img src="transaction-state.png" alt="transaction-state.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org44f417d" class="outline-3">
+<h3 id="org44f417d"><span class="section-number-3">2.5</span> Permission controller</h3>
+<div class="outline-text-3" id="text-2-5">
+<ul class="org-ul">
+<li><a href="#org53c15d9">2.6.1.6</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org80f770f" class="outline-3">
+<h3 id="org80f770f"><span class="section-number-3">2.6</span> Network controller</h3>
+<div class="outline-text-3" id="text-2-6">
+</div>
+<div id="outline-container-orgd91bcd9" class="outline-4">
+<h4 id="orgd91bcd9"><span class="section-number-4">2.6.1</span> Network provider engine</h4>
+<div class="outline-text-4" id="text-2-6-1">
+<p>
+run the rpc request through sequence of middlewares
+</p>
+</div>
+<ol class="org-ol">
+<li><a id="org6667302"></a>origin middleware<br />
+<div class="outline-text-5" id="text-2-6-1-1">
+<p>
+add a <code>.origin</code> to the req, eg. <code>req.origin="monndex.io"</code>
+</p>
+</div>
+</li>
+<li><a id="org5f74739"></a>logger middleware<br /></li>
+<li><a id="org19b76f2"></a>onboarding middleware<br /></li>
+<li><a id="org23803dd"></a>filter middleware<br />
+<div class="outline-text-5" id="text-2-6-1-4">
+<p>
+<code>eth_newFilter</code>&#x2026;
+</p>
+</div>
+</li>
+<li><a id="orgb9e5e7c"></a>subscribe middleware<br />
+<div class="outline-text-5" id="text-2-6-1-5">
+<p>
+<code>eth_subscribe</code>, <code>eth_unsubscribe</code>
+</p>
+</div>
+</li>
+<li><a id="org53c15d9"></a>permission middleware<br />
+<div class="outline-text-5" id="text-2-6-1-6">
+<ul class="org-ul">
+<li>handle permissions</li>
+<li>using package rpc-cap <a href="https://github.com/MetaMask/rpc-cap">https://github.com/MetaMask/rpc-cap</a></li>
+<li>1 domain -&gt; multiple account -&gt; multiple permissions</li>
+<li>block <code>cfx_accounts</code>, <code>cfx_requestAccounts</code> if the domain don&rsquo;t have
+permission and popup the auth ui</li>
+</ul>
+</div>
+</li>
+<li><a id="orga0eae7a"></a>wallet watch asset  middleware<br />
+<div class="outline-text-5" id="text-2-6-1-7">
+<p>
+<a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-747.md">- eip-747</a>
+</p>
+<ul class="org-ul">
+<li>An RPC method for allowing users to easily track new assets with a suggestion from sites they are visiting.</li>
+</ul>
+</div>
+</li>
+<li><a id="orge51923c"></a>metamask middleware<br />
+<div class="outline-text-5" id="text-2-6-1-8">
+<p>
+combination on multiple middlewares
+</p>
+</div>
+<ol class="org-ol">
+<li><a id="org7ac2940"></a>simple method<br />
+<div class="outline-text-6" id="text-2-6-1-8-1">
+<ul class="org-ul">
+<li><code>web3_clientVersion</code></li>
+<li><code>eth_syncing</code></li>
+</ul>
+</div>
+</li>
+<li><a id="orge38049c"></a>wallet middleware<br />
+<div class="outline-text-6" id="text-2-6-1-8-2">
+<ul class="org-ul">
+<li>handle rpc methods that don&rsquo;t rely on fullnode
+<ul class="org-ul">
+<li><code>cfx_accounts</code></li>
+<li><code>eth_coinbase</code></li>
+<li><code>cfx_sendTransaction</code></li>
+<li><code>cfx_sign</code></li>
+<li><code>cfx_signTypedData</code></li>
+<li><code>cfx_signTypedData_v0</code></li>
+<li><code>cfx_signTypedData_v3</code></li>
+<li><code>cfx_signTypedData_v4</code></li>
+<li><code>personal_sign</code></li>
+<li><code>eth_getEncryptionPublicKey</code></li>
+<li><code>eth_decrypt</code></li>
+<li><code>personal_ecRecover</code></li>
+</ul></li>
+</ul>
+</div>
+</li>
+<li><a id="org4e547fa"></a>pending nonce middleware<br />
+<div class="outline-text-6" id="text-2-6-1-8-3">
+<ul class="org-ul">
+<li>use own get nonce logic for <code>cfx_nextNonce</code></li>
+</ul>
+</div>
+</li>
+<li><a id="orgeaf01e8"></a>pending tx middleware<br />
+<div class="outline-text-6" id="text-2-6-1-8-4">
+<ul class="org-ul">
+<li>use cached tx hash for <code>cfx_getTransactionByHash</code></li>
+</ul>
+</div>
+</li>
+</ol>
+</li>
+<li><a id="org1c32818"></a>network middleware<br />
+<ol class="org-ol">
+<li><a id="orgce93d1c"></a>epoch ref rewrite middleware<br />
+<div class="outline-text-6" id="text-2-6-1-9-1">
+<p>
+rewrite epoch ref to epoch number
+</p>
+</div>
+</li>
+<li><a id="orgbf2acfd"></a>epoch cache middleware<br />
+<div class="outline-text-6" id="text-2-6-1-9-2">
+<p>
+code: <a href="https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/block-cache.js#L8">https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/block-cache.js#L8</a>
+</p>
+<ul class="org-ul">
+<li>cache info for each request depends on <a href="https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/cache-utils.js#L80">req.method</a>, eg.
+<ul class="org-ul">
+<li>never cache <code>cfx_sendTransaction</code></li>
+<li>cache <code>cfx_gasPrice</code>, <code>cfx_getBalance</code>, <code>cfx_getNextNonce</code> by epoch</li>
+<li>cache <code>cfx_getCode</code>, <code>cfx_getBlockByHash</code> permanently</li>
+</ul></li>
+</ul>
+</div>
+</li>
+<li><a id="org441e87b"></a>in flight cache middleware<br />
+<div class="outline-text-6" id="text-2-6-1-9-3">
+<p>
+code: <a href="https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/inflight-cache.js#L11">https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/inflight-cache.js#L11</a>
+cache request result by payload
+</p>
+</div>
+</li>
+<li><a id="orgeb19583"></a>epoch tracker inspector middleware<br />
+<div class="outline-text-6" id="text-2-6-1-9-4">
+<p>
+code: <a href="https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/block-tracker-inspector.js#L8">https://github.com/yqrashawn/cfx-json-rpc-middleware/blob/12cd563aa298ef1d7b8d041b500ec824666620fd/block-tracker-inspector.js#L8</a>
+check for new epoch number
+</p>
+</div>
+</li>
+<li><a id="org6510610"></a>cfx rewrite request middleware<br />
+<div class="outline-text-6" id="text-2-6-1-9-5">
+<p>
+rewrite eth request to cfx request, eg.
+</p>
+<ul class="org-ul">
+<li><code>eth_.*</code> to <code>cfx_.*</code></li>
+<li><code>getBlockByNumber</code> to <code>getBlockByEpochNumber</code></li>
+<li>&#x2026;.</li>
+</ul>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgb0616ba" class="outline-3">
+<h3 id="orgb0616ba"><span class="section-number-3">2.7</span> Preferences controller</h3>
+</div>
+<div id="outline-container-org3b2fcaf" class="outline-3">
+<h3 id="org3b2fcaf"><span class="section-number-3">2.8</span> AddressBook controller</h3>
+</div>
+</div>
+
+<div id="outline-container-org9a45eed" class="outline-2">
+<h2 id="org9a45eed"><span class="section-number-2">3</span> Features</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-org784de46" class="outline-3">
+<h3 id="org784de46"><span class="section-number-3">3.1</span> Manage account</h3>
+<div class="outline-text-3" id="text-3-1">
+</div>
+<div id="outline-container-org4f0167e" class="outline-4">
+<h4 id="org4f0167e"><span class="section-number-4">3.1.1</span> user can import/generate hd wallet through mnemonic</h4>
+</div>
+<div id="outline-container-org690f065" class="outline-4">
+<h4 id="org690f065"><span class="section-number-4">3.1.2</span> user can easily create accounts in hd wallet</h4>
+</div>
+<div id="outline-container-org698098b" class="outline-4">
+<h4 id="org698098b"><span class="section-number-4">3.1.3</span> user can import private keys</h4>
+</div>
+<div id="outline-container-orgae4c005" class="outline-4">
+<h4 id="orgae4c005"><span class="section-number-4">3.1.4</span> user can export private keys of any account</h4>
+</div>
+<div id="outline-container-orga8ba04f" class="outline-4">
+<h4 id="orga8ba04f"><span class="section-number-4">3.1.5</span> user can export mnemonic of hd wallet</h4>
+</div>
+</div>
+<div id="outline-container-orge97ff6e" class="outline-3">
+<h3 id="orge97ff6e"><span class="section-number-3">3.2</span> Manage network</h3>
+<div class="outline-text-3" id="text-3-2">
+</div>
+<div id="outline-container-org592073b" class="outline-4">
+<h4 id="org592073b"><span class="section-number-4">3.2.1</span> user can switch between multiple networks</h4>
+</div>
+<div id="outline-container-org73a856f" class="outline-4">
+<h4 id="org73a856f"><span class="section-number-4">3.2.2</span> user can add custom network (rpc endpoint)</h4>
+</div>
+<div id="outline-container-org547421e" class="outline-4">
+<h4 id="org547421e"><span class="section-number-4">3.2.3</span> user can easily connect to local rpc endpoint (default localhost rpc endpoint)</h4>
+</div>
+</div>
+<div id="outline-container-org23d0e49" class="outline-3">
+<h3 id="org23d0e49"><span class="section-number-3">3.3</span> Manage transaction</h3>
+<div class="outline-text-3" id="text-3-3">
+</div>
+<div id="outline-container-orgcee45f2" class="outline-4">
+<h4 id="orgcee45f2"><span class="section-number-4">3.3.1</span> display transaction details</h4>
+</div>
+<div id="outline-container-org772408c" class="outline-4">
+<h4 id="org772408c"><span class="section-number-4">3.3.2</span> display history transactions</h4>
+</div>
+<div id="outline-container-orgdf4d469" class="outline-4">
+<h4 id="orgdf4d469"><span class="section-number-4">3.3.3</span> display on-going transaction status</h4>
+</div>
+<div id="outline-container-orgaf11454" class="outline-4">
+<h4 id="orgaf11454"><span class="section-number-4">3.3.4</span> speedup/cancel on-going transaction</h4>
+</div>
+<div id="outline-container-org7580983" class="outline-4">
+<h4 id="org7580983"><span class="section-number-4">3.3.5</span> transaction activity log</h4>
+</div>
+</div>
+<div id="outline-container-orgeb52ecf" class="outline-3">
+<h3 id="orgeb52ecf"><span class="section-number-3">3.4</span> Manage dapp permissions</h3>
+<div class="outline-text-3" id="text-3-4">
+</div>
+<div id="outline-container-org1ecaa31" class="outline-4">
+<h4 id="org1ecaa31"><span class="section-number-4">3.4.1</span> dapp permission request ui</h4>
+</div>
+<div id="outline-container-orgd8cea8a" class="outline-4">
+<h4 id="orgd8cea8a"><span class="section-number-4">3.4.2</span> ui to deauthorize and re-authorize current dapp</h4>
+</div>
+</div>
+<div id="outline-container-orgce51754" class="outline-3">
+<h3 id="orgce51754"><span class="section-number-3">3.5</span> Provide api for dapp</h3>
+<div class="outline-text-3" id="text-3-5">
+</div>
+<div id="outline-container-org8f52b00" class="outline-4">
+<h4 id="org8f52b00"><span class="section-number-4">3.5.1</span> authorized dapp can get authorized address</h4>
+</div>
+<div id="outline-container-org566279e" class="outline-4">
+<h4 id="org566279e"><span class="section-number-4">3.5.2</span> authorized dapp can get network info and listen on network change</h4>
+</div>
+<div id="outline-container-org01f4f2b" class="outline-4">
+<h4 id="org01f4f2b"><span class="section-number-4">3.5.3</span> authorized dapp can request signature from user through portal</h4>
+</div>
+<div id="outline-container-org13c765e" class="outline-4">
+<h4 id="org13c765e"><span class="section-number-4">3.5.4</span> authorized dapp can send request to fullnode through portal</h4>
+</div>
+<div id="outline-container-org4744f87" class="outline-4">
+<h4 id="org4744f87"><span class="section-number-4">3.5.5</span> provide special ui of common signature requests for users</h4>
+<div class="outline-text-4" id="text-3-5-5">
+</div>
+<ol class="org-ol">
+<li><a id="org78cdd45"></a><code>cfx_sign</code><br /></li>
+<li><a id="org4bb4e58"></a><code>personal_sign</code><br /></li>
+<li><a id="org8ca82b9"></a><code>cfx_signTypedData_v4</code><br /></li>
+<li><a id="org336df5c"></a><code>cfx_sendTransaction</code><br /></li>
+<li><a id="orgc15b44c"></a>token <code>transfer</code><br /></li>
+<li><a id="orgd253f1a"></a>token <code>approve</code><br /></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgff5f3db" class="outline-3">
+<h3 id="orgff5f3db"><span class="section-number-3">3.6</span> Address Book</h3>
+<div class="outline-text-3" id="text-3-6">
+</div>
+<div id="outline-container-org7850ed8" class="outline-4">
+<h4 id="org7850ed8"><span class="section-number-4">3.6.1</span> can add contacts address with alias and use alias as address later</h4>
+</div>
+</div>
+</div>
+<div id="outline-container-org3bd0d63" class="outline-2">
+<h2 id="org3bd0d63"><span class="section-number-2">4</span> Refactor</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+<div id="outline-container-org04f85b0" class="outline-3">
+<h3 id="org04f85b0"><span class="section-number-3">4.1</span> support multiple vaults</h3>
+</div>
+<div id="outline-container-orgfe0c0a4" class="outline-3">
+<h3 id="orgfe0c0a4"><span class="section-number-3">4.2</span> too much redux code</h3>
+<div class="outline-text-3" id="text-4-2">
+</div>
+<div id="outline-container-org817da71" class="outline-4">
+<h4 id="org817da71"><span class="section-number-4">4.2.1</span> <a href="https://github.com/facebookexperimental/Recoil">https://github.com/facebookexperimental/Recoil</a></h4>
+</div>
+<div id="outline-container-orgb9fd7f9" class="outline-4">
+<h4 id="orgb9fd7f9"><span class="section-number-4">4.2.2</span> <a href="https://github.com/pmndrs/jotai">https://github.com/pmndrs/jotai</a></h4>
+</div>
+<div id="outline-container-orge00ddd4" class="outline-4">
+<h4 id="orge00ddd4"><span class="section-number-4">4.2.3</span> <a href="https://github.com/pmndrs/zustand">https://github.com/pmndrs/zustand</a></h4>
+<div class="outline-text-4" id="text-4-2-3">
+<ul class="org-ul">
+<li>store is outside of react state tree</li>
+<li>support use outside of react components</li>
+<li>support serialize/persist the store</li>
+<li>support redux devtool</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb256113" class="outline-3">
+<h3 id="orgb256113"><span class="section-number-3">4.3</span> can auth multiple accounts at once</h3>
+</div>
+<div id="outline-container-orgdd867d2" class="outline-3">
+<h3 id="orgdd867d2"><span class="section-number-3">4.4</span> should decouple with frontend</h3>
+<div class="outline-text-3" id="text-4-4">
+</div>
+<div id="outline-container-orgea6e2b2" class="outline-4">
+<h4 id="orgea6e2b2"><span class="section-number-4">4.4.1</span> user can write their own wallet frontend</h4>
+</div>
+<div id="outline-container-org06791cb" class="outline-4">
+<h4 id="org06791cb"><span class="section-number-4">4.4.2</span> the wallet popup frontend is just pre-authed with</h4>
+<div class="outline-text-4" id="text-4-4-2">
+<ol class="org-ol">
+<li>able to import or create vault without auth</li>
+<li>is the default frontend</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
