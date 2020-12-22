@@ -1,4 +1,4 @@
-#+TITLE: Portal Documentation
+#+TITLE: ConfluxPortal Documentation
 #+OPTIONS: creator:nil author:nil toc:t
 #+SETUPFILE: https://raw.githubusercontent.com/yqrashawn/org-html-themes/master/org/theme-bigblow.setup
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="./override.css"/>
@@ -481,18 +481,21 @@ rewrite eth request to cfx request, eg.
 ** Address Book
 *** can add contacts address with alias and use alias as address later
 * Refactor
-** support multiple vaults
-** too much redux code
-*** https://github.com/facebookexperimental/Recoil
-*** https://github.com/pmndrs/jotai
-*** https://github.com/pmndrs/zustand
+** Goal
+*** able to add new features effortlessly
+*** should decouple with frontend
+**** user can write their own wallet frontend
+**** the wallet popup frontend is just pre-authed with
+1. able to import or create vault without auth
+2. is the default frontend
+** Current problem
+*** don't support multiple vaults
+*** too much redux code
+**** https://github.com/facebookexperimental/Recoil
+**** https://github.com/pmndrs/jotai
+**** https://github.com/pmndrs/zustand
 - store is outside of react state tree
 - support use outside of react components
 - support serialize/persist the store
 - support redux devtool
-** can auth multiple accounts at once
-** should decouple with frontend
-*** user can write their own wallet frontend
-*** the wallet popup frontend is just pre-authed with
-1. able to import or create vault without auth
-2. is the default frontend
+*** can't auth multiple accounts at once
