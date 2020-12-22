@@ -483,11 +483,27 @@ rewrite eth request to cfx request, eg.
 * Refactor
 ** Goal
 *** able to add new features effortlessly
-*** should decouple with frontend
-**** user can write their own wallet frontend
-**** the wallet popup frontend is just pre-authed with
-1. able to import or create vault without auth
-2. is the default frontend
+**** should decouple with frontend
+- user/third party can write their own wallet frontend
+- we can put frontend code in a separate project, no need to wait for chrome web
+  store review
+- portal will be a in-browser service that
+  - stores users encrypted private key/mnemonic
+  - inject a rpc provider to web pages
+  - provide a permission system that intercept rpc request from frontend if not authorized
+  - provide a popup ui for user to auth rpc request
+***** portal's background acts like a rpc server
+***** portal injects a rpc provider to frontend page
+***** portal's bg provides some wallet specific rpc methods
+- ~cfx_unlockWallet~
+- ~cfx_lockWallet~
+- ~cfx_importMnemonic~
+- ~cfx_importPrivateKey~
+- ~cfx_requestCurrentSelectedAccount~
+***** frontend needs to have the permission to request each kind of rpc
+**** unit tests and e2e test
+***** unit test with jest
+***** e2e test with [[https://cypress.io/][cypress]]
 ** Current problem
 *** don't support multiple vaults
 *** too much redux code
@@ -495,7 +511,13 @@ rewrite eth request to cfx request, eg.
 **** https://github.com/pmndrs/jotai
 **** https://github.com/pmndrs/zustand
 - store is outside of react state tree
-- support use outside of react components
-- support serialize/persist the store
+- [[https://github.com/pmndrs/zustand#using-zustand-without-react][can be used outside of react components]]
+- [[https://github.com/pmndrs/zustand#persist-middleware][support serialize/persist the store]]
 - support redux devtool
 *** can't auth multiple accounts at once
+*** too slow to compile
+- slow hot reload
+- slow dev build
+- slow prod build
+**** compiler: [[https://github.com/swc-project/swc][swc]]
+**** bundler: [[https://github.com/evanw/esbuild][esbuild]]
