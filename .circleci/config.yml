@@ -60,5 +60,6 @@ jobs:
             git config --global user.email "namy.19@gmail.com"
             git config --global user.name "yqrashawn"
             git add .
+            git add -f Portal-Architecture.html
             git commit -m 'feat: release [ci skip]'
             git push --force origin HEAD:docs
