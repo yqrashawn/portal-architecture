@@ -504,6 +504,7 @@ rewrite eth request to cfx request, eg.
 **** unit tests and e2e test
 ***** unit test with jest
 ***** e2e test with [[https://cypress.io/][cypress]]
+*** compatible with [[https://docs.metamask.io/guide/ethereum-provider.html#table-of-contents][metamask's current provider api]]
 ** Current problem
 *** don't support multiple vaults
 *** too much redux code
