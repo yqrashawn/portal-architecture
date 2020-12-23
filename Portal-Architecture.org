@@ -307,7 +307,7 @@ each other. MetaMask use this through [[https://github.com/MetaMask/extension-po
 - import mnemonic/pk: create keyring instance, encrypt and persist mnemonic/pk
 - export mnemonic/pk: use password to decrypt the encrypted keyring and send to ui
 - signing methods: just interface, the real signing logic is in other package
-- account related methods: create account from hk keyring, remove account...
+- account related methods: create account from hd keyring, remove account...
 *** simple keyring
 - Github: https://github.com/yqrashawn/cfx-simple-keyring
 - private key related code
@@ -383,7 +383,7 @@ each other. MetaMask use this through [[https://github.com/MetaMask/extension-po
 *** Network provider engine
 run the rpc request through sequence of middlewares
 **** origin middleware
-add a ~.origin~ to the req, eg. ~req.origin="monndex.io"~
+add a ~.origin~ to the req, eg. ~req.origin="moondex.io"~
 **** logger middleware
 **** onboarding middleware
 **** filter middleware
@@ -505,6 +505,7 @@ rewrite eth request to cfx request, eg.
 ***** unit test with jest
 ***** e2e test with [[https://cypress.io/][cypress]]
 *** compatible with [[https://docs.metamask.io/guide/ethereum-provider.html#table-of-contents][metamask's current provider api]]
+*** support hardware wallet with qrcode
 ** Current problem
 *** don't support multiple vaults
 *** too much redux code
@@ -522,3 +523,17 @@ rewrite eth request to cfx request, eg.
 - slow prod build
 **** compiler: [[https://github.com/swc-project/swc][swc]]
 **** bundler: [[https://github.com/evanw/esbuild][esbuild]]
+** Experiment
+https://github.com/yqrashawn/protal
+*** progress
+- [x] use [[https://swc.rs/docs/configuring-swc][swc]] to compile js
+- [x] use [[https://www.npmjs.com/package/livereload-js][livereload-js]] for hotreload
+- [x] loadable dev env extension, ~yarn dev~
+- [x] loadable prod env extension, ~yarn prod~
+- [ ] support more browsers
+  - [x] chrome
+  - [ ] firefox
+  - [ ] brave
+  - [ ] opera
+- [ ] unit test with jest
+- [ ] e2e test with cypress
