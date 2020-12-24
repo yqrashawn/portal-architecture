@@ -523,6 +523,7 @@ rewrite eth request to cfx request, eg.
 - slow prod build
 **** compiler: [[https://github.com/swc-project/swc][swc]]
 **** bundler: [[https://github.com/evanw/esbuild][esbuild]]
+**** don't build in dev, use native-module, try [[https://www.snowpack.dev/reference/configuration][snowpack]]
 ** Experiment
 https://github.com/yqrashawn/protal
 *** progress
